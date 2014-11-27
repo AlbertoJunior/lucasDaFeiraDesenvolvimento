@@ -51,8 +51,9 @@ public class Andar : MonoBehaviour {
 
 			if(col.point.Equals("Coletavel")){
 			}
-			if(col.point.Equals("Chao")){
-				animacao.SetBool("pulando", false);
+			if(col.otherCollider.CompareTag("Chao")){
+				Debug.Log("teste");
+				//animacao.SetBool("pulando", false);
 			}
 		}
 	}

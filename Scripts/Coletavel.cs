@@ -28,8 +28,12 @@ public class Coletavel : MonoBehaviour {
 	}
 
 	void OnTriggerStay(Collider other) {
-		if (other.attachedRigidbody)
-			other.attachedRigidbody.AddForce(Vector3.up * 10);
+		if(Input.GetKey(KeyCode.E)){
+			Debug.Log("pegou o item aew!");
+			animation.Play("Box_open");
+		}
+		//if (other.attachedRigidbody)
+		//	other.attachedRigidbody.AddForce(Vector3.up * 10);
 	}
 
 }
