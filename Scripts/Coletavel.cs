@@ -2,38 +2,45 @@
 using System.Collections;
 
 public class Coletavel : MonoBehaviour {
-	public GameObject camera = null;
+	public bool coletado;
+	public AudioClip somColetou;
+	public GameObject textoUI;
+	public GameObject textoUIOK;
+
+	public bool bau;
 
 	// Use this for initialization
 	void Start () {
+		coletado = false;
+		textoUI.SetActive(false);
+		textoUIOK.SetActive(false);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
 	}
 
-	void OnTriggerEnter(Collider other) {
-		if (other.CompareTag ("Player")) {
-			Debug.Log("pega item ai mano");
-			camera.SetActive (true);
+	void OnTriggerStay(Collider other) {
+		if (other.gameObject.tag.Equals("Player")) {
+			if(!coletado){
+				textoUI.SetActive(true);
+				if(Input.GetKeyDown(KeyCode.K)){
+					if(bau){
+						GetComponent<Animator>().SetTrigger("Abrir");
+					}
+					coletado = true;
+					textoUI.SetActive(false);
+					textoUIOK.SetActive(true);
+				}
+			}
 		}
 	}
 
 	void OnTriggerExit(Collider other) {
-		if (other.CompareTag ("Player")) {
-			Debug.Log("volta ai mano");
-			camera.SetActive (false);
+		if (other.gameObject.tag.Equals("Player")) {
+			if(!coletado){
+				textoUI.SetActive(false);
+			}
+			textoUIOK.SetActive(false);
 		}
-	}
-
-	void OnTriggerStay(Collider other) {
-		if(Input.GetKey(KeyCode.E)){
-			Debug.Log("pegou o item aew!");
-			animation.Play("Box_open");
-		}
-		//if (other.attachedRigidbody)
-		//	other.attachedRigidbody.AddForce(Vector3.up * 10);
-	}
-
-}
+	}}

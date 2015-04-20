@@ -3,58 +3,62 @@ using System.Collections;
 
 public class Andar : MonoBehaviour {
 	
-	public float jumpSpeed = 20f;
-	public float rotationSpeed = 13.5f;
-	public float moveSpeed = 6.5f;
-	public bool recarregando = false;
+	public float jumpForce = 35f;
+	public float moveSpeed = 14f;
 	private Animator animacao;
-	
+	private bool isRight;
+	private Rigidbody rigibody;
+
 	// Use this for initialization
 	void Start () {
+		rigibody = GetComponent<Rigidbody>();
 		animacao = GetComponent<Animator> ();
+		isRight = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKey(KeyCode.D)){
-			transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+		if (Input.GetKey (KeyCode.D)) {
+			if(!isRight){
+				flip (-180);
+				isRight = true;
+			}
+			transform.Translate (Vector3.forward * moveSpeed * Time.deltaTime);
+			//rigibody.AddForce(transform.forward * moveSpeed, ForceMode.Acceleration);
+			animacao.SetFloat("velocidade", moveSpeed * Time.deltaTime);
 		}
-		else if(Input.GetKey(KeyCode.A)){
-			transform.Rotate(Vector3.up, -rotationSpeed * Time.deltaTime);
+		else if (Input.GetKey (KeyCode.A)){
+			if(isRight){
+				flip (180);
+				isRight = false;
+			}
+			transform.Translate (Vector3.forward * moveSpeed * Time.deltaTime);
+			//rigibody.AddForce(transform.forward * moveSpeed, ForceMode.Acceleration);
+			animacao.SetFloat("velocidade", moveSpeed * Time.deltaTime);
 		}
-		
-		if(Input.GetKey(KeyCode.S)){
-			transform.Translate(Vector3.forward * -moveSpeed * Time.deltaTime);
-		}
-		else if(Input.GetKey(KeyCode.W)){
-			transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
-			animacao.SetFloat("velocidade", moveSpeed);
-		}
+
 		if(Input.GetKey(KeyCode.Space) && !animacao.GetBool("pulando")){
-			transform.rigidbody.AddForce(0, jumpSpeed * (Time.deltaTime+10), 0);
 			animacao.SetBool("pulando", true);
-		}
-		if(Input.GetKey(KeyCode.F)){
-			animacao.SetTrigger("acenar");
+			transform.GetComponent<Rigidbody>().AddForce(0, jumpForce * (Time.deltaTime+moveSpeed), 0);
 		}
 	}
 	
 	void FixedUpdate(){
-		if(animacao.GetFloat("velocidade") > 0.1){
-			animacao.SetFloat("velocidade",animacao.GetFloat("velocidade") * -Time.deltaTime);
+		if (animacao.GetFloat("velocidade") > 0.1 && !Input.anyKeyDown) {
+			animacao.SetFloat ("velocidade", animacao.GetFloat ("velocidade") - (animacao.GetFloat ("velocidade") * Time.deltaTime));
 		}
 	}
 	
 	void OnCollisionEnter (Collision colisors){
-		foreach(ContactPoint col in colisors.contacts){
-			Debug.DrawRay(col.point, col.normal, Color.white);
-
-			if(col.point.Equals("Coletavel")){
-			}
-			if(col.otherCollider.CompareTag("Chao")){
-				Debug.Log("teste");
-				//animacao.SetBool("pulando", false);
+		foreach (ContactPoint contact in colisors.contacts) {
+			if(contact.otherCollider.gameObject.tag.Equals("Chao")){
+				animacao.SetBool("pulando", false);
 			}
 		}
 	}
+
+	private void flip(float val){
+		transform.Rotate (0, val, 0);
+	}
+
 }
