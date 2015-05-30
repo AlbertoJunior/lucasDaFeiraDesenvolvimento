@@ -1,60 +1,59 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Andar : MonoBehaviour {
-	
-	public float jumpForce;
-	public float moveSpeed;
-	public float distanciaRay;
-
+public class Andar : Movimentavel {
 	private Animator animacao;
+	private CameraMover scriptCamera;
 	private bool isRight;
-	private Ray rayCast;
 
 	// Use this for initialization
-	void Start () {
-		//rigibody = GetComponent<Rigidbody>();
+	private void Start () {
+		base.Start();
 		animacao = GetComponent<Animator> ();
+		scriptCamera = (CameraMover) GameObject.FindGameObjectWithTag("MainCamera").GetComponent("CameraMover");
 		isRight = true;
 	}
-	
+
 	// Update is called once per frame
-	void Update () {
+	private void Update () {
+		Ray2D rayCast2 = new Ray2D(transform.position, Vector2.right);
+		Debug.DrawRay (rayCast2.origin, rayCast2.direction, Color.red);
+
+		//verificando tecla para movimentar
 		if (Input.GetKey (KeyCode.D)) {
 			if(!isRight){
 				flip (-180);
-				isRight = true;
+				isRight = !isRight;
+				scriptCamera.flip ();
 			}
-
-			if(verificaParede()){
-				transform.Translate (Vector3.forward * moveSpeed * Time.deltaTime);
+	
+			//verifica se pode movimentar
+			if(!verificaParede(distanciaRay, isRight)){
+				moverDireita();
 				animacao.SetFloat("velocidade", moveSpeed * Time.deltaTime);
 			}
 		}
 		else if (Input.GetKey (KeyCode.A)){
 			if(isRight){
 				flip (180);
-				isRight = false;
+				isRight = !isRight;
+				scriptCamera.flip();
 			}
 
-			if(verificaParede()){
-				transform.Translate (Vector3.forward * moveSpeed * Time.deltaTime);
+			//verifica se pode movimentar
+			if(!verificaParede(distanciaRay, isRight)){
+				moverEsquerda();
 				animacao.SetFloat("velocidade", moveSpeed * Time.deltaTime);
 			}
 		}
 
 		if(Input.GetKey(KeyCode.Space) && !animacao.GetBool("pulando")){
 			animacao.SetBool("pulando", true);
-			transform.GetComponent<Rigidbody>().AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+			pular();
 		}
 	}
-	
-	void FixedUpdate(){
-		if (animacao.GetFloat("velocidade") > 0.1 && !Input.anyKeyDown) {
-			animacao.SetFloat ("velocidade", animacao.GetFloat ("velocidade") - (animacao.GetFloat ("velocidade") * Time.deltaTime));
-		}
-	}
-	
+
+	//metodo que verifica se o player colidiu com o chao
 	void OnCollisionEnter (Collision colisors){
 		foreach (ContactPoint contact in colisors.contacts) {
 			if(contact.otherCollider.gameObject.tag.Equals("Chao")){
@@ -62,28 +61,4 @@ public class Andar : MonoBehaviour {
 			}
 		}
 	}
-
-	private void flip(float val){
-		transform.Rotate (0, val, 0);
-	}
-
-	private bool verificaParede(){
-		RaycastHit hit;
-
-		if (isRight) 
-			rayCast = new Ray (transform.position, Vector3.forward);
-		else 
-			rayCast = new Ray (transform.position, Vector3.back);
-
-		if(Physics.Raycast(rayCast, out hit, distanciaRay)){
-			if(hit.collider.tag == "Colisor"){
-				return false;
-			}
-			else {
-				return true;
-			}
-		}
-		return true;
-	}
-
 }

@@ -4,31 +4,42 @@ using System.Collections;
 public class CameraMover : MonoBehaviour {
 	public float suavidade;
 	public float alturaCamera;
-	public float proximidadeCamera;
+	public float valorFlip;
 	public float posicaoCamera;
-
+	public float posicaoCameraFlip;
+	public float proximidadeCamera;
 	public Transform player;
 	public bool podeMover;
 
 	private Vector3 distanciaCameraPlayer;
+	private bool flipChar;
 
 	// Use this for initialization
 	void Start () {
-		player = (Transform) (GameObject.FindGameObjectWithTag ("Player")).GetComponent("Transform");
 		distanciaCameraPlayer = transform.position - player.position;
 		podeMover = false;
-		//suavidade = ((Andar) (GameObject.FindGameObjectWithTag ("Player")).GetComponent("Andar")).moveSpeed;
+		flipChar = false;
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void LateUpdate () {
 		if(podeMover){
 			Vector3 tg = player.position + distanciaCameraPlayer;
 			tg.y += alturaCamera; 
 			tg.x -= proximidadeCamera; 
-			tg.z -= posicaoCamera; 
+			tg.z -= posicaoCamera + posicaoCameraFlip; 
 
 			transform.position = Vector3.Lerp(transform.position, tg, Time.deltaTime*suavidade); 
 		}
 	}
+
+	public void flip(){
+		if (flipChar) {
+			posicaoCameraFlip = 0;
+		} 
+		else {
+			posicaoCameraFlip = 20;
+		}
+		flipChar = !flipChar;
+	}
+
 }
